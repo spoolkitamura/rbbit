@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <style>
+    #keyboard {
+      width: 100%;
+      opacity: 1.0;
+      position: relative;
+    }
+    .whitekey {
+      width: 50px;
+      height: 240px;
+      display: inline-block;
+      border: 2px solid #000;
+      position: relative;
+      top: 0;
+      z-index: 0;
+    }
+    .whitekey:hover {
+      background-color: #eee;
+    }
+    .blackkey {
+      width: 45px;
+      height: 140px;
+      display: inline-block;
+      margin-left: -24px;
+      background-color: #000;
+      position: absolute;
+      top: 0;
+      z-index: 1;
+    }
+    .blackkey:hover {
+      background-color: #333;
+    }
+    .whitekey .text {
+      position: absolute;
+      bottom: 5px;
+      left: 30%;
+      color: #000;   /* #bbb; */
+      font-size: 14px;
+      font-weight: bold;
+      z-index: 0;
+    }
+    .blackkey .text {
+      position: absolute;
+      bottom: 5px;
+      left: 15%;
+      color: #fff;
+      font-size: 12px;
+      font-weight: bold;
+      z-index: 2;
+    }
+    .activekey {
+      background-color: #ccc;
+    }
+  </style>
+
+  <script>
+    let ws;   // WebSocket
+
+    ws = new WebSocket("ws://127.0.0.1:50215");
+    ws.onmessage = (evt) => {
+//      $("#msg").append("<p>"+evt.data+"</p>");
+//      console.log(evt.data);
+    };
+
+    ws.onclose = () => {
+      console.log("Disconnected from server")
+    };
+
+    ws.onopen = () => {
+      ws.send("Connected to server");
+      volume(64);   // volumeの初期化
+      tempo(120);   // tempo の初期化
+    };
+
+    let div;  // div要素の格納
+    let playing = false;
+
+    // 「押した」状態のイベント処理
+    window.addEventListener('keydown',   playSound);
+    window.addEventListener('mousedown', playSound);
+
+    // 「離した」状態のイベント処理
+    window.addEventListener('keyup',   offSound);
+    window.addEventListener('mouseup', offSound);
+
+    function playSound(e) {
+      if (playing) return;
+      // 「キーボード」はkeyCodeを、「マウス」はdata-key属性を取得する
+      var key = e.keyCode || e.target.dataset.key;
+      // 「key」を使って「div要素」を取得する
+      div = document.querySelector('div[data-key="'+ key +'"]');
+      // 「div要素」が取得できたかチェック
+      if(div) {
+        // div要素のテキスト(音名)を代入する
+        let tone = div.textContent.replace('#', 's');
+        console.log(tone);
+
+        data = `{"command": "play", "arg1": "${tone}", "arg2": "0.5"}`
+        console.log(data);
+        ws.send(data)
+
+        // 状態をtrueにして、連続的な発音を防止する(キーの連打には無効...)
+        playing = true
+        div.classList.add('activekey');
+      }
+    }
+
+    function offSound(e) {
+      if(div) {
+        playing = false;  // 再度発音できるように falseへ戻す
+        div.classList.remove('activekey');
+      }
+    }
+
+    function volume(value) {
+      console.log(value);
+      data = `{"command": "volume", "arg1": "${value}"}`
+      console.log(data);
+      ws.send(data)
+    }
+
+    function tempo(value) {
+      console.log(value);
+      data = `{"command": "tempo", "arg1": "${value}"}`
+      console.log(data);
+      ws.send(data)
+    }
+
+  </script>
+</head>
+
+<body>
+  <h1>micro:bit [sound player]</h1>
+  <div id="keyboard">
+    <div data-key="65" class="whitekey"><span class="text">C4</span></div>
+    <div data-key="87" class="blackkey"><span class="text">C#4</span></div>
+    <div data-key="83" class="whitekey"><span class="text">D4</span></div>
+    <div data-key="69" class="blackkey"><span class="text">D#4</span></div>
+    <div data-key="68" class="whitekey"><span class="text">E4</span></div>
+    <div data-key="70" class="whitekey"><span class="text">F4</span></div>
+    <div data-key="84" class="blackkey"><span class="text">F#4</span></div>
+    <div data-key="71" class="whitekey"><span class="text">G4</span></div>
+    <div data-key="89" class="blackkey"><span class="text">G#4</span></div>
+    <div data-key="72" class="whitekey"><span class="text">A4</span></div>
+    <div data-key="85" class="blackkey"><span class="text">A#4</span></div>
+    <div data-key="74" class="whitekey"><span class="text">B4</span></div>
+    <div data-key="75" class="whitekey"><span class="text">C5</span></div>
+  </div>
+
+  <div id="volume">
+    Volume : 
+    <input type="range" value="64" min="32" max="160" step="32"
+           oninput="document.getElementById('output1').value=this.value"
+           onchange="volume(this.value);">
+    <output id="output1">64</output>
+  </div>
+
+  <div id="bpm">
+    Tempo : 
+    <input type="range" value="120" min="60" max="180" step="30"
+           oninput="document.getElementById('output2').value=this.value"
+           onchange="tempo(this.value);">
+    <output id="output2">120</output>
+  </div>
+
+</body>
+</html>
+

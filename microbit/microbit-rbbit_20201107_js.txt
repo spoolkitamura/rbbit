@@ -1,0 +1,153 @@
+function sound_rest (text: string) {
+    if (text == "1") {
+        music.rest(music.beat(BeatFraction.Whole))
+    } else if (text == "2") {
+        music.rest(music.beat(BeatFraction.Double))
+    } else if (text == "4") {
+        music.rest(music.beat(BeatFraction.Breve))
+    } else if (text == "/2") {
+        music.rest(music.beat(BeatFraction.Half))
+    } else if (text == "/4") {
+        music.rest(music.beat(BeatFraction.Quarter))
+    } else if (text == "/8") {
+        music.rest(music.beat(BeatFraction.Eighth))
+    } else if (text == "/16") {
+        music.rest(music.beat(BeatFraction.Sixteenth))
+    } else {
+    	
+    }
+}
+function sound_play (fq: number, text: string) {
+    if (text == "1") {
+        music.playTone(fq, music.beat(BeatFraction.Whole))
+    } else if (text == "2") {
+        music.playTone(fq, music.beat(BeatFraction.Double))
+    } else if (text == "4") {
+        music.playTone(fq, music.beat(BeatFraction.Breve))
+    } else if (text == "/2") {
+        music.playTone(fq, music.beat(BeatFraction.Half))
+    } else if (text == "/4") {
+        music.playTone(fq, music.beat(BeatFraction.Quarter))
+    } else if (text == "/8") {
+        music.playTone(fq, music.beat(BeatFraction.Eighth))
+    } else if (text == "/16") {
+        music.playTone(fq, music.beat(BeatFraction.Sixteenth))
+    } else {
+    	
+    }
+}
+let button_b = 0
+let button_a = 0
+let ms = 0
+let y = 0
+let x = 0
+let bpm = 0
+let volume = 0
+let freq = 0
+let value = 0
+let param = ""
+let cmd = ""
+let recv = ""
+serial.setRxBufferSize(128)
+basic.showLeds(`
+    # # # . .
+    # . . . .
+    # . # . #
+    . . . . #
+    . . # # #
+    `)
+basic.forever(function () {
+    let leng: string;
+recv = serial.readLine()
+    cmd = recv.substr(0, 6)
+    if (cmd == "LEDshw") {
+        for (let j = 0; j <= 4; j++) {
+            param = recv.substr(6 + j * 2, 2)
+            value = parseFloat(param)
+            for (let i = 0; i <= 4; i++) {
+                if (value % 2 == 1) {
+                    led.plot(4 - i, j)
+                    value = value - 1
+                } else {
+                    led.unplot(4 - i, j)
+                }
+                value = value / 2
+            }
+        }
+    } else if (recv == "LEDclr") {
+        basic.showLeds(`
+            . . . . .
+            . . . . .
+            . . . . .
+            . . . . .
+            . . . . .
+            `)
+    } else if (recv == "LEDfil") {
+        basic.showLeds(`
+            # # # # #
+            # # # # #
+            # # # # #
+            # # # # #
+            # # # # #
+            `)
+    } else if (cmd == "LEDput") {
+        param = recv.substr(6, recv.length - 6)
+        basic.showString(param)
+    } else if (cmd == "SNDply") {
+        param = recv.substr(6, 4)
+        freq = parseFloat(param)
+        leng = recv.substr(10, recv.length - 9)
+        sound_play(freq, leng)
+    } else if (cmd == "SNDrst") {
+        param = recv.substr(6, 3)
+        leng = param
+        sound_rest(leng)
+    } else if (cmd == "SNDvol") {
+        param = recv.substr(6, 3)
+        volume = parseFloat(param)
+        music.setVolume(volume)
+    } else if (cmd == "SNDbpm") {
+        param = recv.substr(6, 3)
+        bpm = parseFloat(param)
+        music.setTempo(bpm)
+    } else if (cmd == "LEDon ") {
+        param = recv.substr(6, 1)
+        x = parseFloat(param)
+        param = recv.substr(7, 1)
+        y = parseFloat(param)
+        led.plot(x, y)
+    } else if (cmd == "LEDoff") {
+        param = recv.substr(6, 1)
+        x = parseFloat(param)
+        param = recv.substr(7, 1)
+        y = parseFloat(param)
+        led.unplot(x, y)
+    } else if (cmd == "LEDtrn") {
+        param = recv.substr(6, 1)
+        x = parseFloat(param)
+        param = recv.substr(7, 1)
+        y = parseFloat(param)
+        led.toggle(x, y)
+    } else if (cmd == "RESET ") {
+        control.reset()
+    } else if (cmd == "SLEEP ") {
+        param = recv.substr(6, 3)
+        ms = parseFloat(param)
+        basic.pause(ms)
+    } else {
+    	
+    }
+})
+basic.forever(function () {
+    if (input.buttonIsPressed(Button.A)) {
+        button_a = 1
+    } else {
+        button_a = 0
+    }
+    if (input.buttonIsPressed(Button.B)) {
+        button_b = 1
+    } else {
+        button_b = 0
+    }
+    serial.writeNumbers([input.acceleration(Dimension.X), input.acceleration(Dimension.Y), input.acceleration(Dimension.Z), input.rotation(Rotation.Pitch), input.rotation(Rotation.Roll), input.lightLevel(), input.temperature(), button_a, button_b])
+})

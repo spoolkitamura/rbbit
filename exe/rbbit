@@ -1,0 +1,188 @@
+#!/usr/bin/env ruby
+
+require "rbbit"
+require 'optparse'
+require 'readline'
+
+#
+# Diagnosis
+#
+
+def diagnosis(mb)
+  STDOUT.sync = true
+  while input = Readline.readline("micro:bit> ", true)
+    inputs = input.split(' ')
+    case inputs[0]
+      when '?'
+        puts
+        puts "interactive commands"
+        puts "\n [LED]"
+        puts "   on   x y  ... turn on  the LED at (x, y) or whole  if omitt x, y"
+        puts "   off  x y  ... turn off the LED at (x, y) or whole  if omitt x, y"
+        puts "   turn x y  ... toggle   the LED at (x, y) or center if omitt x, y"
+        puts "   puts str  ... show string specified or 'Ruby!' if ommit str"
+        puts "   1         ... show LED's pattern 1"
+        puts "   2         ... show LED's pattern 2"
+        puts "   3         ... show LED's pattern 3"
+        puts "\n [Sound]"
+        puts "   play      ... play sound"
+        puts "\n [Sensor]"
+        puts "   scan      ... print values of 'x', 'y', 'z', 'pitch', 'roll', 'light', 'temp' for 10 seconds"
+        puts "\n [Button]"
+        puts "   button    ... print status of button-A and button-B for 10 seconds"
+        puts "\n [etc]"
+        puts "   port      ... print port"
+        puts "   reset     ... reset micro:bit"
+        puts "   exit      ... exit this script"
+        puts
+      when 'exit'
+        mb.close
+        break
+      when 'reset'
+        mb.reset
+      when 'port'
+        puts mb.port
+      when 'on'
+        x = y = nil
+        if inputs.length >= 3
+          x = inputs[1].to_i
+          y = inputs[2].to_i
+        end
+        mb.led_on(x, y)
+      when 'off'
+        x = y = nil
+        if inputs.length >= 3
+          x = inputs[1].to_i
+          y = inputs[2].to_i
+        end
+        mb.led_off(x, y)
+      when 'turn'
+        x = y = 2
+        if inputs.length >= 3
+          x = inputs[1].to_i
+          y = inputs[2].to_i
+        end
+        mb.led_turn(x, y)
+      when 'puts'
+        str = 'Ruby!'
+        if inputs.length >= 2
+          str = inputs[1]
+        end
+        mb.led_puts(str)
+      when '1'
+        mb.led_show(
+          [[1, 1, 1, 1, 1],
+           [0, 0, 0, 0, 0],
+           [1, 1, 1, 1, 1],
+           [0, 0, 0, 0, 0],
+           [1, 1, 1, 1, 1]]
+        )
+      when '2'
+        mb.led_show(
+          [[1, 1, 1, 1, 1],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 0, 0],
+           [1, 1, 0, 0, 0],
+           [1, 0, 0, 0, 0]]
+        )
+      when '3'
+        mb.led_show(
+          [[1, 0, 1, 0, 1],
+           [0, 0, 1, 0, 1],
+           [1, 1, 1, 0, 1],
+           [0, 0, 0, 0, 1],
+           [1, 1, 1, 1, 1]]
+        )
+      when 'play'
+        mb.sound_volume = 48
+        mb.sound_tempo = 180
+        mb.sound_play(:C4, 1)     # do
+        mb.sound_play(:D4, 1)     # re
+        mb.sound_play(:E4, 1)     # mi
+        mb.sound_play(:F4, 1)     # fa
+        mb.sound_play(:G4, 1)     # so
+        mb.sound_play(:A4, 1)     # la
+        mb.sound_play(:B4, 1)     # si
+        mb.sound_play(:C5, 1)     # do
+        mb.sound_rest(2)
+        mb.sound_play(:C5, 0.5)   # do
+        mb.sound_play(:B4, 0.5)   # si
+        mb.sound_play(:A4, 0.5)   # la
+        mb.sound_play(:G4, 0.5)   # so
+        mb.sound_play(:F4, 0.5)   # fa
+        mb.sound_play(:E4, 0.5)   # mi
+        mb.sound_play(:D4, 0.5)   # re
+        mb.sound_play(:C4, 0.5)   # do
+        mb.sound_rest(2)
+      when 'scan'
+        20.times do
+          puts "x=%6d    y=%6d    z=%6d    pitch=%3d    roll=%3d    light=%3d    temp=%3d\n" % [mb.x, mb.y, mb.z, mb.p, mb.r, mb.l, mb.t]
+          Kernel.sleep 0.5
+        end
+      when 'button'
+        mb.on_press_a   { puts "[A] press!"   }
+        mb.on_press_b   { puts "[B] press!"   }
+        mb.on_release_a { puts "[A] release!" }
+        mb.on_release_b { puts "[B] release!" }
+        puts "Please press button"
+        500.times do
+          puts "[A] down"    if mb.button_down?(:a)
+          puts "[B] down"    if mb.button_down?(:b)
+            Kernel.sleep 0.02
+        end
+        mb.on_press_a   {}
+        mb.on_press_b   {}
+        mb.on_release_a {}
+        mb.on_release_b {}
+      else
+        puts 'Invalid'
+    end
+  end
+end
+
+
+
+# parse options
+usage = "Usage : #{$0} [-i] [-s [ws_port]] MB_PORT"
+options = {}
+o = OptionParser.new do |o|
+  o.version = Rbbit::VERSION
+  o.banner = usage
+  o.summary_width = 16
+  o.summarize
+  o.on("-i",           "Interactive")
+  o.on("-s [ws_port]", "WebSocket server (default ws_port = #{Rbbit::WS_PORT})")
+  o.parse!(ARGV, into: options)
+end
+#
+# {                    } --> {i: true,  s: :default}    both avairable (default ws_port)
+# {          s: nil    } --> {i: false, s: :default}    only server    (default ws_port)
+# {          s: "xxxxx"} --> {i: false, s: xxxxx   }    only server    (ws_port = xxxxx)
+# {i: true             } --> {i: true,  s: false   }    only interactive
+# {i: true,  s: nil    } --> {i: true,  s: :default}    both avairable (default ws_port)
+# {i: true,  s: "xxxxx"} --> {i: true,  s: xxxxx   }    both avairable (ws_port = xxxxx)
+#
+options[:i] = false            unless options.has_key?(:i)
+options[:s] = false            unless options.has_key?(:s)
+options[:s] = :default         if     options[:s] == nil
+options[:s] = options[:s].to_i if     options[:s].class == String
+if options[:i] == false and options[:s] == false
+  options[:i] = true
+  options[:s] = :default
+end
+
+# parse arguments
+port = ARGV[0]
+unless port || ENV['MB_PORT'] 
+  puts usage
+else
+  mb = Rbbit::Microbit.new(port, options[:s])
+  print "conneted to #{mb.port}.  "
+  puts (options[:i] ? "('?' for help)" : "")
+  if options[:i]
+    diagnosis(mb)
+  else
+    mb.mainloop {}
+  end
+end
+

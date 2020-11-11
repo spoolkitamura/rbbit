@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>rbbit sample</title>
+  <style>
+    /* 線の色の指定 */
+    .epoch .category1 .line {
+      stroke: #ff0000;
+      stroke-width: 3px;
+    }
+    .epoch .category2 .line {
+      stroke: #0000ff;
+      stroke-width: 3px;
+    }
+    .epoch .category3 .line {
+      stroke: #00cc00;
+      stroke-width: 3px;
+    }
+    .epoch {
+      display: inline-block;
+      margin: 10px;
+    }
+    .remark_r {
+      border-bottom: solid;
+      border-color: #ff0000;
+      border-width: 2px;
+    }
+    .remark_g {
+      border-bottom: solid;
+      border-color: #00cc00;
+      border-width: 2px;
+    }
+    .remark_b {
+      border-bottom: solid;
+      border-color: #0000ff;
+      border-width: 2px;
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>micro:bit [status monitor]</h1>
+    <div class="row">
+      <h4>
+        <p>
+          加速度
+          <span class="remark_r">(x)</span>
+          <span class="remark_b">(y)</span>
+          <span class="remark_g">(z)</span>
+        </p>
+      </h4>
+      <div id="myChart1" class="epoch" style="width: 480px; height: 150px">
+      </div>
+    </div>
+    <div class="row">
+      <h4>
+        <p>
+          傾き
+          <span class="remark_r">(前後)</span>
+          <span class="remark_b">(左右)</span>
+        </p>
+      </h4>
+      <div id="myChart2" class="epoch" style="width: 480px; height: 100px">
+      </div>
+    </div>
+    <div class="row">
+      <h4>
+        <p>
+          その他
+          <span class="remark_r">(温度)</span>
+          <span class="remark_b">(明るさ)</span>
+        </p>
+      </h4>
+      <div id="myChart3" class="epoch" style="width: 480px; height: 100px">
+      </div>
+    </div>
+    <div class="row">
+      <h4>
+        <p>
+          ボタン
+          <span class="remark_r">(A)</span>
+          <span class="remark_b">(B)</span>
+        </p>
+      </div>
+      <div id="myChart4" class="epoch" style="width: 480px; height: 50px">
+      </h4>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/locale/ja.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.3.13/d3.js" charset="utf-8"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/epoch/0.8.4/js/epoch.min.js"></script>
+
+  <script src="monitor.js"></script>
+</body>
+</html>
+

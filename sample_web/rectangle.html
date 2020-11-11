@@ -1,0 +1,76 @@
+<html>
+  <head>
+    <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js'></script>
+    <script src="https://spoolkitamura.github.io/nyle-canvas/dev2/nyle-canvas.js"></script>
+
+    <script>
+      let colors = ['red', 'green', 'blue']
+      let c = 2
+      let size = 200
+
+      let nyle = new Core();
+      nyle.show();
+
+      const draw = (data) => {
+        // console.log(data.r, data.p);
+        let [d, color, al, ar] = convert(data.r, data.p, size, c);
+
+        // 左右の四角形を描画
+        xl = nyle.getScreenWidth()  / 2 - (size + d);           // 左側四角形の起点 x座標
+        xr = nyle.getScreenWidth()  / 2 + d;                    // 右側四角形の起点 x座標
+        yl = nyle.getScreenHeight() / 2 - (size / 2 + d);
+        yr = nyle.getScreenHeight() / 2 - (size / 2 - d);
+
+        nyle.clear();
+        nyle.drawRect(xl, yl, size + (d * 2), size + (d * 2), {color: color, a: al, fill: true});
+        nyle.drawRect(xr, yr, size - (d * 2), size - (d * 2), {color: color, a: ar, fill: true});
+
+        nyle.drawText(10,  45, 'micro:bit [app sample]',  {color: 'black', size: 24, bold: true});
+        nyle.drawText(10, 410, 'roll     : change size',  {color: 'gray', size: 20, font: 'monospace', bold: true, italic: true});
+        nyle.drawText(10, 435, 'pitch    : change alpha', {color: 'gray', size: 20, font: 'monospace', bold: true, italic: true});
+        nyle.drawText(10, 460, 'press[A] : change color', {color: 'gray', size: 20, font: 'monospace', bold: true, italic: true});
+
+        //  # [A]ボタンが押されたら色を変える
+        if (data.a_release) {
+          c += 1
+          if (c == colors.length) c = 0;
+          // console.log(c, colors.length)
+        }
+      }
+
+      // ±180あたりのときの色や大きさ...要調整★
+      function convert(wx, wy, size, c) {
+        let d     = wx
+        let color = colors[c]                       // 色
+        let al = (180 + wy) / 400.0                 // 明度(明)
+        let ar = (180 - wy) / 400.0                 // 明度(暗)
+        return [d, color, al, ar]
+      }
+
+      $(function(){
+        ws = new WebSocket("ws://localhost:50215");
+        ws.onmessage = function(evt) {
+          let data;
+          try {
+            data = JSON.parse(evt.data);
+          } catch(e) {
+            console.log(evt.data);
+          }
+          draw(data);
+        };
+
+        ws.onclose = function() {
+          console.log("Disconnected from server")
+        };
+
+        ws.onopen = function() {
+          ws.send("Connected to server");
+        };
+      });
+    </script>
+  </head>
+
+  <body>
+  </body>
+</html>
+
