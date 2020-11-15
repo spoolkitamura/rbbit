@@ -10,9 +10,7 @@ require 'rbbit.rb'
 mb = Rbbit::Microbit.new
 
 mb.on_press_b do
-  mb.puts("OK!")
   mb.break
-  mb.close
 end
 
 mb.led_off
@@ -63,4 +61,7 @@ mb.mainloop do
 
   #sleep 0.1                       # 適当なウェイト...
 end
+
+mb.puts("OK!")
+mb.close(5000)
 

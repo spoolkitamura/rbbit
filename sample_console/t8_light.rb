@@ -10,9 +10,7 @@ require 'rbbit.rb'
 mb = Rbbit::Microbit.new
 
 mb.on_press_b do
-  mb.puts("OK!")
   mb.break
-  mb.close
 end
 
 mb.led_off
@@ -51,4 +49,7 @@ mb.mainloop do
   mb.led_show(pattern)    # 明るさのレベルに応じて LEDが点灯
   sleep 0.2               # 適当なウェイトが必要...
 end
+
+mb.puts("OK!")
+mb.close(5000)
 

@@ -24,5 +24,5 @@ pattern = [
 end
 
 mb.led_puts("OK!")
-mb.close
+mb.close(5000)
 

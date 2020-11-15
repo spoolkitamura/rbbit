@@ -19,5 +19,5 @@ end
 sleep 0.5
 
 mb.led_puts("OK!")
-mb.close
+mb.close(5000)
 

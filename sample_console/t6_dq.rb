@@ -94,5 +94,5 @@ mb.sound_play(:C5,  2.0)
 mb.sound_rest(      1.0)
 
 mb.puts("OK!")
-mb.close
+mb.close(5000)
 

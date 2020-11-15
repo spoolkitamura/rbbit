@@ -56,9 +56,7 @@ pattern = [
           ]
 
 def finish(mb)
-  mb.puts("OK!")
   mb.break
-  mb.close
 end
 
 level = 0
@@ -83,4 +81,7 @@ end
 
 mb.led_off
 mb.mainloop {}
+
+mb.puts("OK!")
+mb.close(5000)
 

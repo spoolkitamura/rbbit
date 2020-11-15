@@ -8,9 +8,9 @@ require 'rbbit.rb'
 
 mb = Rbbit::Microbit.new
 
-mb.led_puts("I'm rbbit.")
+mb.led_puts("rbbit")
 mb.led_off
 
 mb.led_puts("OK!")
-mb.close
+mb.close(10000)
 

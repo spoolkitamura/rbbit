@@ -22,11 +22,12 @@ mb.on_release_a do
 end
 
 mb.on_press_b do
-  mb.led_puts("OK!")
   mb.break
-  mb.close
 end
 
 puts "Please press 'button-A'  (press 'button-B' to exit)"
 mb.mainloop {}
+
+mb.led_puts("OK!")
+mb.close(5000)
 

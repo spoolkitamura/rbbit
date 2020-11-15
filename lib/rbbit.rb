@@ -19,6 +19,7 @@ module Rbbit
       #
       ws_port = (ws_server == :default ? WS_PORT : ws_server)
       run_server(ws_port)
+      Kernel.sleep 1
       @con = WebSocket::Client::Simple.connect "ws://127.0.0.1:#{ws_port}"
       @con.on :message do |msg|
         #puts msg.data
@@ -27,8 +28,8 @@ module Rbbit
         @con.send('Hello')
       end
       @con.on :close do |e|
-        p e
-        exit 1
+        #p e
+        #exit 1
       end
     end
 
@@ -95,7 +96,7 @@ module Rbbit
             end
           }
           ws.onclose {
-            puts "Close"
+            #puts "Close"
             connections.delete(ws) if connections.index(ws)
             exit if connections.size == 0
           }
@@ -295,14 +296,14 @@ module Rbbit
       @continue_loop = false
     end
 
-    def close
+    def close(delay = 0)
       @continue_thread = false
       Kernel.sleep 1
       until @q.empty?       # wait for until command queue has been empty
         Kernel.sleep 0.5
         # Kernel.puts "sync #{@q.size}"
       end
-      Kernel.sleep 0.5
+      Kernel.sleep 0.5 + delay / 1000
       @thread_w.kill
       @thread_r.kill
       @sp.close

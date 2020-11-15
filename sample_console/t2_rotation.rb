@@ -29,7 +29,7 @@ sleep 0.2
 
 leds.each do |p|
   mb.led_on(p[0], p[1])
-  sleep 0.2    # ゆっくり
+  sleep 0.2     # ゆっくり
 end
 
 3.times do
@@ -40,8 +40,8 @@ end
 
 mb.wait(500)
 mb.led_show(pattern)
-mb.wait(2000)              # sleepとの差異...
+mb.wait(2000)   # sleepとの差異...
 
 mb.led_puts("OK!")
-mb.close
+mb.close(5000)
 

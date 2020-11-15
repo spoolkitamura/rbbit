@@ -56,9 +56,7 @@ pattern << [
            ]
 
 mb.on_release_b do
-  mb.puts("OK!")
   mb.break
-  mb.close
 end
 
 x0 = 0
@@ -76,4 +74,7 @@ mb.mainloop do
   end
   sleep 0.2
 end
+
+mb.puts("OK!")
+mb.close(5000)
 
