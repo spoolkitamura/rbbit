@@ -26,8 +26,8 @@ If you are using Windows, type following in addition to it:
 Connect the micro:bit to your PC with USB cable.  
 Then, save following file and drop to the micro:bit.  
 
-[microbit-rbbit_20201118_v1.5.hex](microbit/microbit-rbbit_20201118_v1.5.hex)    (for micro:bit v1.5)  
-[microbit-rbbit_20201118_v2.0.hex](microbit/microbit-rbbit_20201118_v2.0.hex)    (for micro:bit v2.0)  
+[microbit-rbbit_20201127_v1.5.hex](microbit/microbit-rbbit_20201127_v1.5.hex)    (for micro:bit v1.5)  
+[microbit-rbbit_20201127_v2.0.hex](microbit/microbit-rbbit_20201127_v2.0.hex)    (for micro:bit v2.0)  
 
 ### [PC]
 
