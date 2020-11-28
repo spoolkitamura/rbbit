@@ -19,6 +19,7 @@ pattern = [
 mb = Rbbit::Microbit.new(ARGV[0])
 
 mb.led_show(pattern)
+sleep 0.2
 
 mb.sound_tempo = 150
 mb.sound_volume = 48
