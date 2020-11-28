@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Class library and WebSocket server to use 'micro:bit'}
   spec.description   = %q{'rbbit' is a Class library and WebSocket server to use 'micro:bit'}
-  spec.homepage      = "https://github.com/spoolkitamura/rb-bit"
+  spec.homepage      = "https://github.com/spoolkitamura/rbbit"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
