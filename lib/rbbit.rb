@@ -38,7 +38,7 @@ module Rbbit
     end
 
     private def send_to_mb(data)
-      #p data
+      #p data (例外処理...)
       if data["command"] == 'on'
         x = (data["arg1"] ? data["arg1"] : nil)
         y = (data["arg2"] ? data["arg2"] : nil)
@@ -60,16 +60,16 @@ module Rbbit
       elsif data["command"] == 'play'
         freq = data["arg1"].to_sym
         beat = data["arg2"].to_f
-        @mb.sound_play(freq, beat)   # ★引数の数やタイプ不一致の場合の例外処理 要
+        @mb.sound_play(freq, beat)
       elsif data["command"] == 'rest'
         beat = data["arg2"].to_f
-        @mb.sound_rest(beat)         # ★引数の数やタイプ不一致の場合の例外処理 要
+        @mb.sound_rest(beat)
       elsif data["command"] == 'volume'
         v = data["arg1"].to_f
-        @mb.sound_volume = v         # ★引数の数やタイプ不一致の場合の例外処理 要
+        @mb.sound_volume = v
       elsif data["command"] == 'tempo'
         bpm = data["arg1"].to_f
-        @mb.sound_tempo = bpm        # ★引数の数やタイプ不一致の場合の例外処理 要
+        @mb.sound_tempo = bpm
       end
     end
 
@@ -152,7 +152,7 @@ module Rbbit
     WAIT = 0.05
     attr_reader :x, :y, :z, :p, :r, :l, :t
 
-    def initialize(port = nil, ws_server = :default)
+    def initialize(port = nil, ws_server = nil)
       @agent = Agent.new(self, ws_server) if ws_server
       @q     = Queue.new
 
@@ -181,6 +181,7 @@ module Rbbit
       @on_release_a         = nil
       @on_release_b         = nil
 
+      @volume               = 127
       @bpm                  = 120   # ウェイト調整のため、この値で明示的に初期化(initialize末尾)
 
       @continue_thread      = nil
@@ -192,7 +193,15 @@ module Rbbit
       stop_bits = 1
       parity    = 0
 
-      @sp = SerialPort.open(@port, baud_rate, data_bits, stop_bits, parity)
+      raise Rbbit::Error, "serialport 'nil' is not available" unless @port
+
+      begin
+        @sp = SerialPort.open(@port, baud_rate, data_bits, stop_bits, parity)
+      rescue => e
+        #Kernel.puts e
+        #exit
+        raise Rbbit::Error, "serialport '#{@port}' is not available"
+      end
       Kernel.sleep 0.5
 
       # -- for write
@@ -262,17 +271,8 @@ module Rbbit
       end
 
       # -- init
-      self.sound_tempo = @bpm
-    end
-
-    def mainloop(&block)
-      @b = block           # ブロックを登録
-      @continue_loop = true
-      loop do
-        break unless @continue_loop
-        @b.call
-        Kernel.sleep WAIT  # ブロック１回処理ごとにウェイト
-      end
+      self.sound_volume = @volume
+      self.sound_tempo  = @bpm
     end
 
     def on_press_a(&block)
@@ -291,8 +291,18 @@ module Rbbit
       @on_release_b = block
     end
 
+    def mainloop(&block)
+      @b = block           # ブロックを登録
+      @continue_loop = true
+      loop do
+        break unless @continue_loop
+        @b.call
+        Kernel.sleep WAIT  # ブロック１回処理ごとにウェイト
+      end
+    end
+
     def break
-      Kernel.sleep 0.5         # 調整...★
+      Kernel.sleep 0.5         ###
       @continue_loop = false
     end
 
@@ -309,6 +319,18 @@ module Rbbit
       @sp.close
     end
 
+    def wait(ms)
+      @q << ["SLEEP %03d\n" % [ms], WAIT + ms / 1000.0]
+    end
+
+    def reset
+      @q << "RESET \n"
+    end
+
+    def port
+      @port
+    end
+
     private def button_status
       @button_down.each_key do |k|
         change  = @button_down[k] ^ @button_down_last[k]        # Get change of mouse press status (XOR)
@@ -320,7 +342,7 @@ module Rbbit
       end
     end
 
-    def event_proc
+    private def event_proc
       @on_press_a.call   if @on_press_a   and @button_press[:a]
       @on_press_b.call   if @on_press_b   and @button_press[:b]
       @on_release_a.call if @on_release_a and @button_release[:a]
@@ -331,17 +353,19 @@ module Rbbit
       @button_down[k]
     end
 
-    def button_press?(k)
-      status = @button_press[k]
-      @button_press[k] = false if @button_press[k]              # avoid continuous judgment
-      status
-    end
+    # Pending...
+    #def button_press?(k)
+    #  status = @button_press[k]
+    #  @button_press[k] = false if @button_press[k]              # avoid continuous judgment
+    #  status
+    #end
 
-    def button_release?(k)
-      status = @button_release[k]
-      @button_release[k] = false if @button_release[k]          # avoid continuous judgment
-      status
-    end
+    # Pending...
+    #def button_release?(k)
+    #  status = @button_release[k]
+    #  @button_release[k] = false if @button_release[k]          # avoid continuous judgment
+    #  status
+    #end
 
     def led_on(x = nil, y = nil)
       if (x == nil and y == nil)
@@ -381,6 +405,7 @@ module Rbbit
 
     def sound_volume=(v)
       @q << ["SNDvol#{v}\n", WAIT]
+      @volume = v
     end
 
     def sound_tempo=(bpm)
@@ -389,23 +414,11 @@ module Rbbit
     end
 
     def sound_play(freq, beat)
-      @q << ["SNDply%04d%s\n" % [TONE[freq], _beat(beat)], WAIT * 0 + 60.0 / @bpm * beat]   # ★ WAIT調整
+      @q << ["SNDply%04d%s\n" % [TONE[freq], _beat(beat)], WAIT * 0 + 60.0 / @bpm * beat]   ###
     end
 
     def sound_rest(beat)
       @q << ["SNDrst%s\n" % [_beat(beat)], WAIT + 60.0 / @bpm * beat]
-    end
-
-    def reset
-      @q << "RESET \n"
-    end
-
-    def wait(ms)
-      @q << ["SLEEP %03d\n" % [ms], WAIT + ms / 1000.0]
-    end
-
-    def port
-      @port
     end
 
     private def _beat(beat)
@@ -436,10 +449,6 @@ module Rbbit
     alias_method :rest,     :sound_rest
     alias_method :volume=,  :sound_volume=
     alias_method :tempo=,   :sound_tempo=
-
-    alias_method :down?,    :button_down?
-    alias_method :release?, :button_release?
-    alias_method :press?,   :button_press?
 
   end
 

@@ -10,7 +10,7 @@ require 'rbbit.rb'
 =end
 
 
-mb = Rbbit::Microbit.new
+mb = Rbbit::Microbit.new(ARGV[0])
 
 pattern_a = [
              [1, 1, 0, 1, 1],
@@ -54,6 +54,7 @@ mb.on_press_b do
   end
 end
 
+puts "Please press 'button-A' or 'button-B' or Both\n(exit after 15 sec)"
 sleep 15
 
 mb.led_off

@@ -6,11 +6,12 @@ require 'rbbit.rb'
   ・数字がカウントダウンしていく(操作不要)
 =end
 
-mb = Rbbit::Microbit.new
+mb = Rbbit::Microbit.new(ARGV[0])
 
 mb.led_off
 sleep 0.2
 
+puts "Now, count down..."
 (0..9).each do |i|
   mb.led_puts("#{9 - i}")
   sleep 1

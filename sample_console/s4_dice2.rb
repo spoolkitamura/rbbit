@@ -7,7 +7,7 @@ require 'rbbit.rb'
   ・[B]ボタンで終了
 =end
 
-mb = Rbbit::Microbit.new
+mb = Rbbit::Microbit.new(ARGV[0])
 
 mb.led_off
 
@@ -61,6 +61,8 @@ end
 
 x0 = 0
 y0 = 0
+
+puts "Please shake the micro:bit\n(press 'button-B' to exit)"
 mb.mainloop do
   x, y = mb.x, mb.y
   next unless x or y

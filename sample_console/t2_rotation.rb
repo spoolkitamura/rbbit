@@ -7,8 +7,6 @@ require 'rbbit'
   ・最後にチェックマークを表示
 =end
 
-mb = Rbbit::Microbit.new
-
 leds = [
          [1, 0], [2, 0], [3, 0],
          [4, 1], [4, 2], [4, 3],
@@ -23,6 +21,8 @@ pattern = [
             [1, 0, 1, 0, 0],
             [0, 1, 0, 0, 0]
           ]
+
+mb = Rbbit::Microbit.new(ARGV[0])
 
 mb.led_off
 sleep 0.2

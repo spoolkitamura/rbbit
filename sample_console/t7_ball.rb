@@ -7,7 +7,7 @@ require 'rbbit.rb'
   ・[B]ボタンで終了
 =end
 
-mb = Rbbit::Microbit.new
+mb = Rbbit::Microbit.new(ARGV[0])
 
 mb.on_press_b do
   mb.break
@@ -20,6 +20,8 @@ i0, j0  = nil, nil
 i,  j   = 2, 2
 pitches = []
 rolls   = []
+
+puts "Please tilt the micro:bit\n(press 'button-B' to exit)"
 mb.mainloop do
   pitch = mb.p                # pitch(前後)
   roll  = mb.r                # roll (左右)

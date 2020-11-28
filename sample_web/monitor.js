@@ -103,7 +103,7 @@ $(function() {
   ws = new WebSocket("ws://127.0.0.1:50215");
   ws.onmessage = (evt) => {
 //    console.log(evt.data);
-    let data = JSON.parse(evt.data);         // 例外処理 要★
+    let data = JSON.parse(evt.data);         // ###
     let x = data.x
     let y = data.y
     let z = data.z

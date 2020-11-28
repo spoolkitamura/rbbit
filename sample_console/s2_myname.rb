@@ -6,7 +6,7 @@ require 'rbbit.rb'
   ・名前を表示(操作不要)
 =end
 
-mb = Rbbit::Microbit.new
+mb = Rbbit::Microbit.new(ARGV[0])
 
 mb.led_puts("rbbit")
 mb.led_off

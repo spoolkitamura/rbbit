@@ -7,7 +7,7 @@ require 'rbbit.rb'
   ・[B]ボタンで終了
 =end
 
-mb = Rbbit::Microbit.new
+mb = Rbbit::Microbit.new(ARGV[0])
 
 mb.on_press_b do
   mb.break
@@ -16,6 +16,7 @@ end
 mb.led_off
 sleep 0.2
 
+puts "(press 'button-B' to exit)"
 mb.mainloop do
   light = mb.l
   next unless light   # lightが有効値でない場合はループ先頭に戻る

@@ -6,7 +6,19 @@ require 'rbbit.rb'
   ・自動再生(操作不要)
 =end
 
-mb = Rbbit::Microbit.new
+puts "Playing 'Dragon Quest' theme song"
+
+pattern = [
+            [0, 0, 1, 0, 0],
+            [0, 0, 1, 1, 0],
+            [0, 0, 1, 0, 1],
+            [1, 1, 1, 0, 0],
+            [1, 1, 0, 0, 0]
+          ]
+
+mb = Rbbit::Microbit.new(ARGV[0])
+
+mb.led_show(pattern)
 
 mb.sound_tempo = 150
 mb.sound_volume = 48

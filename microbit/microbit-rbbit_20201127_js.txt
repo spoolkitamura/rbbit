@@ -50,11 +50,11 @@ let cmd = ""
 let recv = ""
 serial.setRxBufferSize(128)
 basic.showLeds(`
-    # # # . .
-    # . . . .
-    # . # . #
-    . . . . #
-    . . # # #
+    # # . # #
+    # . . . #
+    . . . . .
+    # . . . #
+    # # . # #
     `)
 basic.forever(function () {
     let leng: string;

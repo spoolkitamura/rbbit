@@ -3,10 +3,10 @@ require 'rbbit.rb'
 # 点滅するハート
 
 =begin
-  ・ハートマークが 10回点滅(操作不要)
+  ・ハートマークが 5回点滅(操作不要)
 =end
 
-mb = Rbbit::Microbit.new
+mb = Rbbit::Microbit.new(ARGV[0])
 
 pattern = [
             [0, 1, 0, 1, 0],
@@ -16,7 +16,7 @@ pattern = [
             [0, 0, 1, 0, 0]
           ]
 
-10.times do
+5.times do
   mb.led_show(pattern)
   sleep 0.5
   mb.led_off

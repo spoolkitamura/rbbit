@@ -143,32 +143,27 @@ end
 
 
 # parse options
-usage = "Usage : #{$0} [-i] [-s [ws_port]] MB_PORT"
+usage = "Usage : #{$0} [-r] [-s ws_port] MB_PORT"
 options = {}
-o = OptionParser.new do |o|
-  o.version = Rbbit::VERSION
-  o.banner = usage
-  o.summary_width = 16
-  o.summarize
-  o.on("-i",           "Interactive")
-  o.on("-s [ws_port]", "WebSocket server (default ws_port = #{Rbbit::WS_PORT})")
-  o.parse!(ARGV, into: options)
+begin
+  o = OptionParser.new do |o|
+    o.version = Rbbit::VERSION
+    o.banner = usage
+    o.summary_width = 16
+    o.summarize
+    o.on("-r",         "reset")
+    o.on("-s ws_port", "specify WebSocket server port (default: #{Rbbit::WS_PORT})")
+    o.parse!(ARGV, into: options)
+  end
+rescue => e
+  p e
+  exit
 end
-#
-# {                    } --> {i: true,  s: :default}    both avairable (default ws_port)
-# {          s: nil    } --> {i: false, s: :default}    only server    (default ws_port)
-# {          s: "xxxxx"} --> {i: false, s: xxxxx   }    only server    (ws_port = xxxxx)
-# {i: true             } --> {i: true,  s: false   }    only interactive
-# {i: true,  s: nil    } --> {i: true,  s: :default}    both avairable (default ws_port)
-# {i: true,  s: "xxxxx"} --> {i: true,  s: xxxxx   }    both avairable (ws_port = xxxxx)
-#
-options[:i] = false            unless options.has_key?(:i)
-options[:s] = false            unless options.has_key?(:s)
-options[:s] = :default         if     options[:s] == nil
-options[:s] = options[:s].to_i if     options[:s].class == String
-if options[:i] == false and options[:s] == false
-  options[:i] = true
+
+unless options.has_key?(:s)
   options[:s] = :default
+else
+  options[:s] = options[:s].to_i
 end
 
 # parse arguments
@@ -177,12 +172,13 @@ unless port || ENV['MB_PORT']
   puts usage
 else
   mb = Rbbit::Microbit.new(port, options[:s])
-  print "conneted to #{mb.port}.  "
-  puts (options[:i] ? "('?' for help)" : "")
-  if options[:i]
-    diagnosis(mb)
+  if options[:r]
+    mb.reset
+    mb.close(1000)
   else
-    mb.mainloop {}
+    print "conneted to #{mb.port}.  "
+    puts (options[:i] ? "('?' for help)" : "")
+    diagnosis(mb)
   end
 end
 

@@ -1,6 +1,6 @@
 # rbbit (rb:-:bit)
 
-'rbbit' is a Class library and WebSocket server to use 'micro:bit' written by Ruby.
+'rbbit' is a Class library and WebSocket server to use 'micro:bit'.
 
 ## Requirements
 
@@ -24,7 +24,10 @@ If you are using Windows, type following in addition to it:
 ### [micro:bit]
 
 Connect the micro:bit to your PC with USB cable.  
-And then, drag and drop 'rbbit/microbit/microbit-rbbit_20201107.hex' to the micro:bit.  
+Then, save following file and drop to the micro:bit.  
+
+[microbit-rbbit_20201118_v1.5.hex](microbit/microbit-rbbit_20201118_v1.5.hex)    (for micro:bit v1.5)  
+[microbit-rbbit_20201118_v2.0.hex](microbit/microbit-rbbit_20201118_v2.0.hex)    (for micro:bit v2.0)  
 
 ### [PC]
 
@@ -33,51 +36,57 @@ find out the serial-port connected the micro:bit like as.
 
 **Windows**
 
-    > chgport
+    [windows] + [x] to open Device Manager
 
-Find a description like `COM5` = \ Devices \ thcdcacm0.  
+Find a description like 'mbed Serial Port (`COM5`)'.  
 
 **macOS**
 
     $ ls -l /dev/tty.*  
 
-Find a device like `/dev/tty.usbmodem1421`.  
+Find a device like `/dev/tty.usbmodem14132`.  
 
 **Linux**
 
     $ $ls -l /dev/serial/by-id/
 
-Find a device like `/dev/ttyACM0`.  
+Find a device like `/dev/ttyACM1`.  
 
 
 ## Usage
 
-### [for Class library]
+### [as Class library]
 ```ruby
 require 'rbbit'
+
+mb = Rbbit:Microbit.new("COM5")          # or "/dev/tty.usbmodem14132", "/dev/ttyACM1"
+mb.led_on
+mb.close(1000)
 ```
 
-### [for WebSocket server]
+### [as WebSocket server]
 
-    $ rbbit MB_PORT
+    $ rbbit COM5                             (Windows)
+    $ rbbit /dev/tty.usbmodem14132           (macOS)
+    $ rbbit /dev/ttyACM1                     (Linux)
 
-       or
+or
 
     $ set MB_PORT=COM5                       (Windows)
-    $ export MB_PORT=/dev/tty.usbmodem1421   (macOS)
-    $ export MB_PORT=/dev/ttyACM0            (Linux)
+    $ export MB_PORT=/dev/tty.usbmodem14132  (macOS)
+    $ export MB_PORT=/dev/ttyACM1            (Linux)
 
     $ rbbit
 
 
 ## Documents
 
-https://github.com/spoolkitamura/rbbit/wiki  
+https://spoolkitamura.github.io/rbbit/index.html
 
 ## Samples
 
-https://github.com/spoolkitamura/rbbit/tree/main/sample_console  
-https://github.com/spoolkitamura/rbbit/tree/main/sample_web  
+https://spoolkitamura.github.io/rbbit/sample_web.html  
+https://spoolkitamura.github.io/rbbit/sample_console.html  
 
 ## License
 
